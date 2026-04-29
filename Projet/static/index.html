@@ -6,191 +6,179 @@
 <title>Energie Pricer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg:        #0b0e13;
-    --surface:   #111520;
-    --border:    #1e2535;
-    --accent:    #e8ff47;
-    --accent2:   #47b8ff;
-    --text:      #e2e8f4;
-    --muted:     #4a5568;
-    --danger:    #ff5757;
-    --mono:      'Space Mono', monospace;
-    --sans:      'Syne', sans-serif;
+    --bg:       #f7f6f2;
+    --white:    #ffffff;
+    --ink:      #111111;
+    --muted:    #8a8a8a;
+    --rule:     #e0ddd6;
+    --accent:   #d4500a;
+    --success:  #1a7a4a;
+    --danger:   #c0392b;
+    --mono:     'DM Mono', monospace;
+    --serif:    'Fraunces', Georgia, serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
+    color: var(--ink);
+    font-family: var(--mono);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 1.5rem 4rem;
-    overflow-x: hidden;
-  }
-
-  /* ── Background grid ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: .35;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── Glow blob ── */
-  body::after {
-    content: '';
-    position: fixed;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 700px;
-    height: 400px;
-    background: radial-gradient(ellipse, rgba(232,255,71,.07) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
+    padding: 0 2rem 6rem;
   }
 
   .wrap {
-    position: relative;
-    z-index: 1;
     width: 100%;
-    max-width: 780px;
+    max-width: 800px;
   }
 
-  /* ── Header ── */
+  /* Header */
   header {
-    padding: 4rem 0 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
+    padding: 5rem 0 3.5rem;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 1rem;
   }
 
   .eyebrow {
     font-family: var(--mono);
-    font-size: .7rem;
-    letter-spacing: .18em;
+    font-size: .68rem;
+    letter-spacing: .2em;
     text-transform: uppercase;
     color: var(--accent);
-    opacity: .8;
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 2px;
+    background: var(--accent);
   }
 
   h1 {
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: clamp(2.4rem, 6vw, 4rem);
-    line-height: 1;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(2.8rem, 7vw, 4.8rem);
+    line-height: .95;
     letter-spacing: -.02em;
-    color: var(--text);
+    color: var(--ink);
   }
 
-  h1 span {
+  h1 em {
+    font-style: italic;
+    font-weight: 300;
     color: var(--accent);
   }
 
-  .subtitle {
-    margin-top: .6rem;
-    font-family: var(--mono);
-    font-size: .78rem;
+  .header-right {
+    font-size: .65rem;
     color: var(--muted);
-    letter-spacing: .04em;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.8;
+    padding-bottom: .25rem;
   }
 
-  /* ── Divider ── */
-  .divider {
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent) 0%, var(--border) 60%);
-    margin-bottom: 2.5rem;
-    opacity: .6;
+  .section-label {
+    font-size: .62rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
   }
 
-  /* ── Search bar ── */
+  /* Search */
+  .search-block { margin-bottom: 2rem; }
+
   .search-row {
     display: flex;
-    gap: .75rem;
-    align-items: stretch;
+    gap: 0;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--white);
+    transition: box-shadow .2s;
+  }
+
+  .search-row:focus-within {
+    box-shadow: 4px 4px 0 var(--ink);
   }
 
   .id-input {
     flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
+    background: transparent;
+    border: none;
+    color: var(--ink);
     font-family: var(--mono);
-    font-size: .9rem;
-    padding: .9rem 1.2rem;
+    font-size: .88rem;
+    padding: 1rem 1.25rem;
     outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    letter-spacing: .03em;
+    letter-spacing: .04em;
   }
 
-  .id-input::placeholder { color: var(--muted); }
+  .id-input::placeholder { color: var(--rule); }
 
-  .id-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(232,255,71,.12);
+  .separator {
+    width: 1.5px;
+    background: var(--ink);
+    flex-shrink: 0;
   }
 
   .btn-analyze {
-    background: var(--accent);
-    color: #0b0e13;
+    background: var(--ink);
+    color: var(--white);
     border: none;
-    border-radius: 6px;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: .88rem;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    padding: .9rem 1.8rem;
-    cursor: pointer;
-    transition: transform .15s, opacity .15s, box-shadow .2s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-  }
-
-  .btn-analyze:hover:not(:disabled) {
-    opacity: .88;
-    box-shadow: 0 0 20px rgba(232,255,71,.25);
-    transform: translateY(-1px);
-  }
-
-  .btn-analyze:disabled { opacity: .45; cursor: not-allowed; }
-
-  .btn-analyze .arrow { transition: transform .2s; }
-  .btn-analyze:not(:disabled):hover .arrow { transform: translateX(3px); }
-
-  /* ── Status / error ── */
-  .status {
-    margin-top: 1.2rem;
     font-family: var(--mono);
-    font-size: .78rem;
-    min-height: 1.2em;
+    font-weight: 500;
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 1rem 1.6rem;
+    cursor: pointer;
+    transition: background .15s;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    white-space: nowrap;
+  }
+
+  .btn-analyze:hover:not(:disabled) { background: var(--accent); }
+  .btn-analyze:disabled { opacity: .35; cursor: not-allowed; }
+
+  .arrow { transition: transform .2s; }
+  .btn-analyze:hover:not(:disabled) .arrow { transform: translateX(4px); }
+
+  /* Status */
+  .status {
+    margin-top: .85rem;
+    font-size: .72rem;
+    letter-spacing: .05em;
     color: var(--muted);
-    letter-spacing: .03em;
+    min-height: 1em;
     display: flex;
     align-items: center;
     gap: .5rem;
   }
 
-  .status.error { color: var(--danger); }
-  .status.info  { color: var(--accent2); }
+  .status.error   { color: var(--danger); }
+  .status.success { color: var(--success); }
 
-  /* ── Loader dots ── */
   .dots span {
     display: inline-block;
     animation: blink 1.2s infinite;
@@ -200,13 +188,11 @@
   .dots span:nth-child(3) { animation-delay: .4s; }
   @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
 
-  /* ── Results ── */
-  .results-section {
-    margin-top: 2.5rem;
-    animation: fadeUp .4s ease both;
-  }
+  /* Results */
+  .results-section { animation: fadeUp .35s ease both; }
+
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
@@ -214,110 +200,109 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 1rem;
+    padding-bottom: .75rem;
+    border-bottom: 2px solid var(--ink);
   }
 
   .results-title {
-    font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--text);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -.01em;
   }
 
   .results-meta {
-    font-family: var(--mono);
-    font-size: .72rem;
-    color: var(--muted);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--mono);
-  }
-
-  thead th {
-    font-size: .68rem;
-    letter-spacing: .14em;
+    font-size: .65rem;
+    letter-spacing: .1em;
     text-transform: uppercase;
     color: var(--muted);
-    padding: .6rem 1.2rem;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead th {
+    font-size: .6rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: .75rem 0;
     text-align: left;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--rule);
+    font-weight: 400;
   }
 
   thead th:last-child { text-align: right; }
 
   tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background .15s;
+    border-bottom: 1px solid var(--rule);
+    transition: background .12s;
   }
 
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,.02); }
+  tbody tr:last-child { border-bottom: 1px solid var(--ink); }
+  tbody tr:hover { background: rgba(0,0,0,.025); }
 
-  /* Best (first row) highlight */
-  tbody tr.best { background: rgba(232,255,71,.04); }
-  tbody tr.best:hover { background: rgba(232,255,71,.07); }
+  tbody tr.best { background: #fff9f6; }
+  tbody tr.best:hover { background: #fff3ee; }
 
-  td {
-    padding: 1.1rem 1.2rem;
-    font-size: .88rem;
-    vertical-align: middle;
-  }
+  td { padding: 1.1rem 0; font-size: .85rem; vertical-align: middle; }
 
-  .contract-name {
+  .contract-cell {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    color: var(--text);
+    gap: .9rem;
   }
 
   .rank {
-    font-size: .68rem;
-    color: var(--muted);
-    min-width: 1.2rem;
+    font-size: .65rem;
+    color: var(--rule);
+    width: 1.4rem;
+    flex-shrink: 0;
+    text-align: right;
   }
 
-  .best .rank { color: var(--accent); }
+  .best .rank { color: var(--accent); font-weight: 500; }
 
   .badge-best {
-    font-size: .6rem;
-    letter-spacing: .1em;
+    font-size: .55rem;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    background: var(--accent);
-    color: #0b0e13;
-    padding: .15rem .45rem;
-    border-radius: 3px;
-    font-weight: 700;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: .15rem .5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
   }
 
-  .price-cell {
-    text-align: right;
-    font-size: .95rem;
+  .price-cell { text-align: right; }
+
+  .price-value {
+    font-family: var(--serif);
+    font-size: 1.25rem;
     font-weight: 700;
-    letter-spacing: .02em;
-    color: var(--text);
+    letter-spacing: -.02em;
+    color: var(--ink);
   }
 
-  .best .price-cell { color: var(--accent); }
+  .best .price-value { color: var(--accent); }
 
   .currency {
-    font-size: .75rem;
-    color: var(--muted);
-    margin-left: .3rem;
-    font-weight: 400;
-  }
-
-  /* ── Footer ── */
-  footer {
-    margin-top: 4rem;
     font-family: var(--mono);
     font-size: .65rem;
     color: var(--muted);
-    letter-spacing: .08em;
+    margin-left: .2rem;
+    letter-spacing: .05em;
+  }
+
+  footer {
+    margin-top: 5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    font-size: .6rem;
+    letter-spacing: .12em;
     text-transform: uppercase;
+    color: var(--rule);
   }
 </style>
 </head>
@@ -325,42 +310,49 @@
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">⚡ Outil d'analyse</p>
-    <h1>Energie<span> Pricer</span></h1>
-    <p class="subtitle">// Comparaison de contrats d'énergie sur mesure</p>
+    <div>
+      <p class="eyebrow">Outil d'analyse</p>
+      <h1>Energie<br><em>Pricer</em></h1>
+    </div>
+    <div class="header-right">
+      Comparaison<br>de contrats<br>d'énergie
+    </div>
   </header>
 
-  <div class="divider"></div>
-
-  <div class="search-row">
-    <input
-      class="id-input"
-      id="tsId"
-      type="text"
-      placeholder="Entrez l'identifiant de votre série temporelle…"
-      autocomplete="off"
-      spellcheck="false"
-    />
-    <button class="btn-analyze" id="btnAnalyze" onclick="analyze()">
-      Analyser <span class="arrow">→</span>
-    </button>
+  <div class="search-block">
+    <p class="section-label">Identifiant de la série temporelle</p>
+    <div class="search-row">
+      <input
+        class="id-input"
+        id="tsId"
+        type="text"
+        placeholder="ex: 6055de6d5bca_naf7010"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div class="separator"></div>
+      <button class="btn-analyze" id="btnAnalyze" onclick="analyze()">
+        Analyser <span class="arrow">→</span>
+      </button>
+    </div>
+    <div class="status" id="status"></div>
   </div>
-
-  <div class="status" id="status"></div>
 
   <div id="results"></div>
 
-  <footer>Energie Pricer · Données confidentielles</footer>
+  <footer>
+    <span>Energie Pricer</span>
+    <span>Données confidentielles</span>
+  </footer>
 
 </div>
 
 <script>
-  const input     = document.getElementById('tsId');
-  const btn       = document.getElementById('btnAnalyze');
-  const statusEl  = document.getElementById('status');
-  const resultsEl = document.getElementById('results');
+  const input    = document.getElementById('tsId');
+  const btn      = document.getElementById('btnAnalyze');
+  const statusEl = document.getElementById('status');
+  const resultsEl= document.getElementById('results');
 
-  // Trigger on Enter key
   input.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
 
   function setStatus(msg, type = '') {
@@ -383,34 +375,39 @@
 
     btn.disabled = true;
     resultsEl.innerHTML = '';
-    setStatus(
-      'Analyse en cours <span class="dots"><span>.</span><span>.</span><span>.</span></span>',
-      'info'
-    );
+    setStatus('Analyse en cours <span class="dots"><span>.</span><span>.</span><span>.</span></span>');
 
     try {
-      const res  = await fetch('/analyze', {
+      const res = await fetch('/analyze', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ id }),
       });
 
-      const data = await res.json();
+      let data;
+      const rawText = await res.text();
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        setStatus('⚠ Erreur serveur (' + res.status + ') — vérifiez les logs uvicorn', 'error');
+        console.error('Réponse non-JSON :', rawText);
+        return;
+      }
 
       if (!res.ok) {
-        setStatus(`⚠ ${data.detail || 'Erreur serveur'}`, 'error');
+        setStatus('⚠ ' + (data.detail || 'Erreur serveur'), 'error');
         return;
       }
 
       setStatus(
-        `✓ ${data.n_points.toLocaleString('fr-FR')} points de données analysés · ID : ${data.id}`,
-        'info'
+        '✓ ' + data.n_points.toLocaleString('fr-FR') + ' points analysés — ' + data.id,
+        'success'
       );
 
       renderResults(data.results);
 
     } catch (err) {
-      setStatus(`⚠ Impossible de joindre le serveur : ${err.message}`, 'error');
+      setStatus('⚠ Impossible de joindre le serveur : ' + err.message, 'error');
     } finally {
       btn.disabled = false;
     }
@@ -424,39 +421,28 @@
 
     const rows = results.map((r, i) => {
       const isBest = i === 0;
-      return `
-        <tr class="${isBest ? 'best' : ''}">
-          <td>
-            <div class="contract-name">
-              <span class="rank">${i + 1}</span>
-              ${r.contract}
-              ${isBest ? '<span class="badge-best">Meilleur prix</span>' : ''}
-            </div>
-          </td>
-          <td class="price-cell">
-            ${formatPrice(r.price)}<span class="currency">€</span>
-          </td>
-        </tr>
-      `;
+      return '<tr class="' + (isBest ? 'best' : '') + '">'
+        + '<td><div class="contract-cell">'
+        + '<span class="rank">' + (i + 1) + '</span>'
+        + '<span>' + r.contract + '</span>'
+        + (isBest ? '<span class="badge-best">Optimal</span>' : '')
+        + '</div></td>'
+        + '<td class="price-cell">'
+        + '<span class="price-value">' + formatPrice(r.price) + '</span>'
+        + '<span class="currency">EUR</span>'
+        + '</td></tr>';
     }).join('');
 
-    resultsEl.innerHTML = `
-      <section class="results-section">
-        <div class="results-header">
-          <span class="results-title">Comparaison des contrats</span>
-          <span class="results-meta">${results.length} contrat${results.length > 1 ? 's' : ''} · trié par prix croissant</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Nom du contrat</th>
-              <th>Prix total</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </section>
-    `;
+    resultsEl.innerHTML =
+      '<section class="results-section">'
+      + '<div class="results-header">'
+      + '<span class="results-title">Comparaison des contrats</span>'
+      + '<span class="results-meta">' + results.length + ' contrat' + (results.length > 1 ? 's' : '') + ' · prix croissant</span>'
+      + '</div>'
+      + '<table>'
+      + '<thead><tr><th>Contrat</th><th>Prix total</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></section>';
   }
 </script>
 </body>
