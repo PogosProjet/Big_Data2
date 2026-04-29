@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Energie Pricer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:        #0b0e13;
+    --surface:   #111520;
+    --border:    #1e2535;
+    --accent:    #e8ff47;
+    --accent2:   #47b8ff;
+    --text:      #e2e8f4;
+    --muted:     #4a5568;
+    --danger:    #ff5757;
+    --mono:      'Space Mono', monospace;
+    --sans:      'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 4rem;
+    overflow-x: hidden;
+  }
+
+  /* ── Background grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: .35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glow blob ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(232,255,71,.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 4rem 0 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .8;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 800;
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: .6rem;
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--border) 60%);
+    margin-bottom: 2.5rem;
+    opacity: .6;
+  }
+
+  /* ── Search bar ── */
+  .search-row {
+    display: flex;
+    gap: .75rem;
+    align-items: stretch;
+  }
+
+  .id-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: .9rem;
+    padding: .9rem 1.2rem;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    letter-spacing: .03em;
+  }
+
+  .id-input::placeholder { color: var(--muted); }
+
+  .id-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,255,71,.12);
+  }
+
+  .btn-analyze {
+    background: var(--accent);
+    color: #0b0e13;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: .88rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: .9rem 1.8rem;
+    cursor: pointer;
+    transition: transform .15s, opacity .15s, box-shadow .2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .btn-analyze:hover:not(:disabled) {
+    opacity: .88;
+    box-shadow: 0 0 20px rgba(232,255,71,.25);
+    transform: translateY(-1px);
+  }
+
+  .btn-analyze:disabled { opacity: .45; cursor: not-allowed; }
+
+  .btn-analyze .arrow { transition: transform .2s; }
+  .btn-analyze:not(:disabled):hover .arrow { transform: translateX(3px); }
+
+  /* ── Status / error ── */
+  .status {
+    margin-top: 1.2rem;
+    font-family: var(--mono);
+    font-size: .78rem;
+    min-height: 1.2em;
+    color: var(--muted);
+    letter-spacing: .03em;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .status.error { color: var(--danger); }
+  .status.info  { color: var(--accent2); }
+
+  /* ── Loader dots ── */
+  .dots span {
+    display: inline-block;
+    animation: blink 1.2s infinite;
+    opacity: 0;
+  }
+  .dots span:nth-child(2) { animation-delay: .2s; }
+  .dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+  /* ── Results ── */
+  .results-section {
+    margin-top: 2.5rem;
+    animation: fadeUp .4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+
+  .results-title {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .results-meta {
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+  }
+
+  thead th {
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: .6rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th:last-child { text-align: right; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,.02); }
+
+  /* Best (first row) highlight */
+  tbody tr.best { background: rgba(232,255,71,.04); }
+  tbody tr.best:hover { background: rgba(232,255,71,.07); }
+
+  td {
+    padding: 1.1rem 1.2rem;
+    font-size: .88rem;
+    vertical-align: middle;
+  }
+
+  .contract-name {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--text);
+  }
+
+  .rank {
+    font-size: .68rem;
+    color: var(--muted);
+    min-width: 1.2rem;
+  }
+
+  .best .rank { color: var(--accent); }
+
+  .badge-best {
+    font-size: .6rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #0b0e13;
+    padding: .15rem .45rem;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+
+  .price-cell {
+    text-align: right;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--text);
+  }
+
+  .best .price-cell { color: var(--accent); }
+
+  .currency {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-left: .3rem;
+    font-weight: 400;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 4rem;
+    font-family: var(--mono);
+    font-size: .65rem;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">⚡ Outil d'analyse</p>
+    <h1>Energie<span> Pricer</span></h1>
+    <p class="subtitle">// Comparaison de contrats d'énergie sur mesure</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <div class="search-row">
+    <input
+      class="id-input"
+      id="tsId"
+      type="text"
+      placeholder="Entrez l'identifiant de votre série temporelle…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="btn-analyze" id="btnAnalyze" onclick="analyze()">
+      Analyser <span class="arrow">→</span>
+    </button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div id="results"></div>
+
+  <footer>Energie Pricer · Données confidentielles</footer>
+
+</div>
+
+<script>
+  const input     = document.getElementById('tsId');
+  const btn       = document.getElementById('btnAnalyze');
+  const statusEl  = document.getElementById('status');
+  const resultsEl = document.getElementById('results');
+
+  // Trigger on Enter key
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
+
+  function setStatus(msg, type = '') {
+    statusEl.className = 'status ' + type;
+    statusEl.innerHTML = msg;
+  }
+
+  function formatPrice(val) {
+    if (val === null || val === undefined) return '—';
+    return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
+  }
+
+  async function analyze() {
+    const id = input.value.trim();
+    if (!id) {
+      setStatus('⚠ Veuillez renseigner un identifiant.', 'error');
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    resultsEl.innerHTML = '';
+    setStatus(
+      'Analyse en cours <span class="dots"><span>.</span><span>.</span><span>.</span></span>',
+      'info'
+    );
+
+    try {
+      const res  = await fetch('/analyze', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus(`⚠ ${data.detail || 'Erreur serveur'}`, 'error');
+        return;
+      }
+
+      setStatus(
+        `✓ ${data.n_points.toLocaleString('fr-FR')} points de données analysés · ID : ${data.id}`,
+        'info'
+      );
+
+      renderResults(data.results);
+
+    } catch (err) {
+      setStatus(`⚠ Impossible de joindre le serveur : ${err.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderResults(results) {
+    if (!results || results.length === 0) {
+      resultsEl.innerHTML = '<p class="status">Aucun résultat.</p>';
+      return;
+    }
+
+    const rows = results.map((r, i) => {
+      const isBest = i === 0;
+      return `
+        <tr class="${isBest ? 'best' : ''}">
+          <td>
+            <div class="contract-name">
+              <span class="rank">${i + 1}</span>
+              ${r.contract}
+              ${isBest ? '<span class="badge-best">Meilleur prix</span>' : ''}
+            </div>
+          </td>
+          <td class="price-cell">
+            ${formatPrice(r.price)}<span class="currency">€</span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    resultsEl.innerHTML = `
+      <section class="results-section">
+        <div class="results-header">
+          <span class="results-title">Comparaison des contrats</span>
+          <span class="results-meta">${results.length} contrat${results.length > 1 ? 's' : ''} · trié par prix croissant</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Nom du contrat</th>
+              <th>Prix total</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </section>
+    `;
+  }
+</script>
+</body>
+</html>
