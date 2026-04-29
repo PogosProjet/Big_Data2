@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Intervalle demandé
-start = "2024-10-31 23:00:00"
-end = "2025-10-29 22:30:00"
+start = "2023-10-31 23:00:00"
+end = "2024-10-29 22:30:00"
 
 # Paramètres
 freq = "30min"  # "H" = horaire | "30min" si tu veux demi-heure
